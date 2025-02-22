@@ -24,16 +24,18 @@ def matmul_add(M, N, K, dtype):
 
 def main():
     argv = sys.argv
-    if len(argv) != 4:
-        print("Invalid input!")
-        print("python matmuladd_timer.py M N K!")
-        exit(1)
+    argv_len = len(argv)
+    if argv_len != 5:
+        print("Invalid Usage!")
+        print("Usage: python matmul_gencode.py M N K ThreadNum")
+        print("0 for ThreadNum by default")
     
     M = int(argv[1])
     N = int(argv[2])
     K = int(argv[3])
-    print(f"mm_gencode: M={M}, N={N} K={K}")
-    foldername = "M" + str(M) + "_N" + str(N) + "_K" + str(K) + "/"
+    ThreadNum = int(argv[4])
+    print(f"mm_gencode: M={M}, N={N} K={K} ThreadNum={ThreadNum}")
+    foldername = f"M{M}_N{N}_K{K}_{ThreadNum}/"
     if os.path.exists(foldername):
         shutil.rmtree(foldername)
     os.mkdir(foldername)
@@ -44,14 +46,18 @@ def main():
     tune_option = auto_scheduler.TuningOptions(
         num_measure_trials=1000,
         #num_measure_trials=10,
-        runner=auto_scheduler.LocalRunner(timeout=1000, repeat=10, enable_cpu_cache_flush=True),
+        runner=auto_scheduler.LocalRunner(timeout=2000, repeat=10, enable_cpu_cache_flush=True),
         #runner=auto_scheduler.LocalRunner(timeout=1000, repeat=2, enable_cpu_cache_flush=True),
         measure_callbacks=[auto_scheduler.RecordToFile(log_file)],
         verbose=0,
     )
     
     # Set the ThreadNum, usually set to the number of logical cores could get the optimal performance
-    os.environ["TVM_NUM_THREADS"] = str(20)
+    if ThreadNum != 0:
+        os.environ["TVM_NUM_THREADS"] = str(ThreadNum)
+        print(f"ThreadNum is {ThreadNum}")
+    else:
+        print("ThreadNum by default")
 
     # Step 1: generate llvm code file
     # Run auto-tuning (search)

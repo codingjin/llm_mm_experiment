@@ -5,16 +5,19 @@ import tvm
 
 def main():
     argv = sys.argv
-    if len(argv) != 4:
-        print("Invalid input!")
-        print("python matmuladd_timer.py M N K!")
+    argv_len = len(argv)
+    if argv_len != 5:
+        print("Invalid Usage!")
+        print("Usage: python matmuladd_timer.py M N K ThreadNum")
+        print("0 for ThreadNum by default!")
         exit(1)
     
     M = int(argv[1])
     N = int(argv[2])
     K = int(argv[3])
+    ThreadNum = int(argv[4])
 
-    so_path = f"M{M}_N{N}_K{K}/matmul_add.so"
+    so_path = f"M{M}_N{N}_K{K}_{ThreadNum}/matmul_add.so"
     if not os.path.exists(so_path):
         print(f"Error! So file: <so_path> not exists!")
         exit(1)
@@ -33,12 +36,15 @@ def main():
 
     module = tvm.runtime.load_module(so_path)
     fmatmul_add = module['matmul_add']
-    print(f"Matmuladd Evaluation for M={M} N={N} K={K}")
+    print(f"Matmuladd Evaluation for M={M} N={N} K={K} ThreadNum={ThreadNum}")
     ops = 2*M*N*K
     print(f"Total OPs is {ops}")
     
-    os.environ["TVM_NUM_THREADS"] = str(20)
-    print("ThreadNum is 20")
+    if ThreadNum != 0:
+        os.environ["TVM_NUM_THREADS"] = str(ThreadNum)
+        print(f"ThreadNum is {ThreadNum}")
+    else:
+        print("ThreadNum by default")
 
     for i in range(9):
         fmatmul_add(a_tvm, b_tvm, c_tvm, out_tvm)
@@ -46,21 +52,7 @@ def main():
     print()
 
     print("Median : ")
-    print("GFLOPs = ")
-    """
-    thread_nums = [0, 8, 16, 20]
-    for threadnum in thread_nums:
-        if threadnum == 0:
-            print("ThreadNum by default")
-        else:
-            os.environ["TVM_NUM_THREADS"] = str(threadnum)
-            print(f"ThreadNum = {threadnum}")
-
-        for i in range(9):
-            fmatmul_add(a_tvm, b_tvm, c_tvm, out_tvm)
-            np.testing.assert_allclose(out_np, out_tvm.numpy(), rtol=1e-3)
-        print()
-    """
+    print("GFLOPs = \n")
 
 if __name__ == "__main__":
     main()

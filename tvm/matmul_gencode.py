@@ -61,7 +61,12 @@ def main():
 
     # Step 1: generate llvm code file
     # Run auto-tuning (search)
-    task.tune(tune_option)
+    try:
+        task.tune(tune_option)
+    except Exception as e:
+        print(e)
+        print("Exception happens in tuning")
+        exit(1)
     # Apply the best schedule
     sch, args = task.apply_best(log_file)
     func = tvm.build(sch, args, target, name="matmul_add")

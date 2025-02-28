@@ -6,9 +6,9 @@
 
 #define ROUND 9
 #define ROUND_MEDIAN 5
-#define THREAD_NUM_ITER_BOUND 4
+#define THREAD_NUM_ITER_BOUND 3
 
-int thread_num_settings[] = {0, 8, 16, 20};
+int thread_num_settings[] = {0, 16, 32};
 
 int main(int argc, char* argv[])
 {

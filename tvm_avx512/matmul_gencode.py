@@ -39,7 +39,7 @@ def main():
     if os.path.exists(foldername):
         shutil.rmtree(foldername)
     os.mkdir(foldername)
-    target = tvm.target.Target("llvm -mcpu=core-avx2")
+    target = tvm.target.Target("llvm -mcpu=skylake-avx512")
     task = tvm.auto_scheduler.SearchTask(func=matmul_add, args=(M, N, K, "float32"), target=target)
     log_file = foldername + "matmul_add.json"
 
@@ -118,7 +118,7 @@ def main():
     # Step 3: generate so file
     sofile_path = f"{foldername}matmul_add.so"
     #gen_so_cmd = f"clang -shared -fPIC -march=znver4 -O3 {ll_code_newfilename} -o {sofile_path} gettime.c"
-    gen_so_cmd = f"clang -shared -fPIC -mavx2 -march=native -O3 {ll_code_newfilename} -o {sofile_path} gettime.c"
+    gen_so_cmd = f"clang -shared -fPIC -march=skylake-avx512 -O3 {ll_code_newfilename} -o {sofile_path} gettime.c"
     os.system(gen_so_cmd)
     print(f"[Step 3 : generate so file <{sofile_path}>] COMPLETED!")
 

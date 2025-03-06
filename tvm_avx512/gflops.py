@@ -19,7 +19,7 @@ def parse_and_compute(filename):
     numbers = []
     capture = False
     for line in lines:
-        if "GFLOPs =" in line:
+        if "Median of:" in line:
             capture = True
             continue
         if capture:
